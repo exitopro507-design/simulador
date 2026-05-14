@@ -1,0 +1,516 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="es">\
+<head>\
+<meta charset="UTF-8">\
+<meta name="viewport" content="width=device-width, initial-scale=1.0">\
+<title>Bot XAU/USD \'b7 Simulador de Trading</title>\
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">\
+<style>\
+  *, *::before, *::after \{ box-sizing: border-box; margin: 0; padding: 0; \}\
+  :root \{\
+    --bg: #0f0f0f;\
+    --bg2: #1a1a1a;\
+    --bg3: #222;\
+    --border: rgba(255,255,255,0.08);\
+    --border2: rgba(255,255,255,0.15);\
+    --text: #f0f0f0;\
+    --text2: #aaa;\
+    --text3: #666;\
+    --green: #1D9E75;\
+    --green-bg: rgba(29,158,117,0.12);\
+    --green-border: rgba(29,158,117,0.35);\
+    --red: #E24B4A;\
+    --red-bg: rgba(226,75,74,0.12);\
+    --red-border: rgba(226,75,74,0.35);\
+    --accent: #14D8FF;\
+    --radius: 10px;\
+    --radius-sm: 6px;\
+  \}\
+  body \{\
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;\
+    background: var(--bg);\
+    color: var(--text);\
+    min-height: 100vh;\
+    padding: 24px 16px 48px;\
+  \}\
+  .container \{ max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; \}\
+\
+  /* Header */\
+  .header \{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 4px; \}\
+  .title-block \{ display: flex; align-items: center; gap: 10px; \}\
+  .title-block h1 \{ font-size: 22px; font-weight: 600; color: var(--text); \}\
+  .title-block .sub \{ font-size: 13px; color: var(--text2); margin-top: 2px; \}\
+  .gold-icon \{ width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #c9962a, #f5c842); display: flex; align-items: center; justify-content: center; font-size: 20px; \}\
+\
+  .status-badge \{\
+    display: flex; align-items: center; gap: 7px;\
+    padding: 7px 16px; border-radius: 20px;\
+    font-size: 13px; font-weight: 500;\
+    border: 1px solid var(--border2);\
+    background: var(--bg2);\
+    color: var(--text2);\
+    cursor: pointer; transition: all 0.2s;\
+    user-select: none;\
+  \}\
+  .status-badge:hover \{ border-color: var(--border2); background: var(--bg3); \}\
+  .status-badge.running \{ background: var(--green-bg); border-color: var(--green-border); color: var(--green); \}\
+  .dot \{ width: 7px; height: 7px; border-radius: 50%; background: currentColor; \}\
+  .status-badge.running .dot \{ animation: pulse 1.2s infinite; \}\
+  @keyframes pulse \{ 0%,100%\{opacity:1\} 50%\{opacity:.25\} \}\
+\
+  /* Metrics */\
+  .metrics \{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; \}\
+  .metric \{\
+    background: var(--bg2); border: 1px solid var(--border);\
+    border-radius: var(--radius); padding: 16px;\
+  \}\
+  .metric-label \{ font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; \}\
+  .metric-value \{ font-size: 24px; font-weight: 600; color: var(--text); \}\
+  .metric-value.pos \{ color: var(--green); \}\
+  .metric-value.neg \{ color: var(--red); \}\
+  .metric-sub \{ font-size: 11px; color: var(--text3); margin-top: 4px; \}\
+\
+  /* Panel */\
+  .panel \{\
+    background: var(--bg2); border: 1px solid var(--border);\
+    border-radius: var(--radius); padding: 18px;\
+  \}\
+  .panel-title \{\
+    font-size: 12px; font-weight: 600; color: var(--text2);\
+    text-transform: uppercase; letter-spacing: 0.08em;\
+    margin-bottom: 16px; display: flex; align-items: center; gap: 7px;\
+  \}\
+  .panel-title i \{ font-size: 15px; \}\
+\
+  /* Chart */\
+  .chart-wrap \{ position: relative; width: 100%; height: 180px; \}\
+\
+  /* Two col */\
+  .two-col \{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; \}\
+  @media (max-width: 580px) \{ .two-col \{ grid-template-columns: 1fr; \} \}\
+\
+  /* Config */\
+  .config-row \{ margin-bottom: 14px; \}\
+  .config-row label \{ font-size: 12px; color: var(--text2); display: flex; justify-content: space-between; margin-bottom: 6px; \}\
+  .config-row label span \{ color: var(--accent); font-weight: 600; \}\
+  select, input[type=range] \{ width: 100%; \}\
+  select \{\
+    background: var(--bg3); border: 1px solid var(--border2);\
+    color: var(--text); border-radius: var(--radius-sm);\
+    padding: 8px 10px; font-size: 13px; outline: none;\
+    cursor: pointer;\
+  \}\
+  select:focus \{ border-color: var(--accent); \}\
+  input[type=range] \{\
+    -webkit-appearance: none; height: 4px;\
+    background: var(--border2); border-radius: 2px; outline: none;\
+  \}\
+  input[type=range]::-webkit-slider-thumb \{\
+    -webkit-appearance: none; width: 16px; height: 16px;\
+    border-radius: 50%; background: var(--accent); cursor: pointer;\
+  \}\
+\
+  /* Signal */\
+  .signal-box \{\
+    border-radius: var(--radius-sm); padding: 12px 14px;\
+    display: flex; align-items: center; justify-content: space-between;\
+    margin-bottom: 12px; border: 1px solid var(--border);\
+    background: var(--bg3); transition: all 0.3s;\
+  \}\
+  .signal-box.buy \{ background: var(--green-bg); border-color: var(--green-border); \}\
+  .signal-box.sell \{ background: var(--red-bg); border-color: var(--red-border); \}\
+  .signal-title \{ font-size: 14px; font-weight: 600; color: var(--text); \}\
+  .signal-sub \{ font-size: 11px; color: var(--text2); margin-top: 2px; \}\
+  .signal-arrow \{ font-size: 26px; font-weight: 700; color: var(--text2); \}\
+  .signal-box.buy .signal-arrow \{ color: var(--green); \}\
+  .signal-box.sell .signal-arrow \{ color: var(--red); \}\
+\
+  /* AI log */\
+  .ai-log \{\
+    background: var(--bg); border: 1px solid var(--border);\
+    border-radius: var(--radius-sm); padding: 12px;\
+    font-size: 12px; line-height: 1.65; color: var(--text2);\
+    font-family: 'Courier New', monospace;\
+    min-height: 80px; white-space: pre-wrap;\
+  \}\
+  .ai-log.loading \{ color: var(--text3); font-style: italic; \}\
+\
+  /* Buttons */\
+  .btn-row \{ display: flex; gap: 8px; margin-top: 12px; \}\
+  .btn-main \{\
+    flex: 1; padding: 11px; border-radius: var(--radius-sm);\
+    border: 1px solid var(--border2); background: var(--bg3);\
+    color: var(--text); font-size: 14px; font-weight: 500;\
+    cursor: pointer; display: flex; align-items: center; justify-content: center;\
+    gap: 7px; transition: all 0.2s;\
+  \}\
+  .btn-main:hover \{ background: #2a2a2a; border-color: var(--accent); color: var(--accent); \}\
+  .btn-ai \{\
+    padding: 11px 16px; border-radius: var(--radius-sm);\
+    border: 1px solid var(--border2); background: var(--bg3);\
+    color: var(--text2); font-size: 13px; cursor: pointer;\
+    transition: all 0.2s; display: flex; align-items: center; gap: 6px;\
+  \}\
+  .btn-ai:hover \{ background: #2a2a2a; color: var(--accent); border-color: var(--accent); \}\
+\
+  /* Operations */\
+  .ops-list \{ display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; \}\
+  .op-row \{\
+    display: flex; align-items: center; justify-content: space-between;\
+    padding: 9px 12px; border-radius: var(--radius-sm);\
+    border: 1px solid var(--border); background: var(--bg3);\
+    font-size: 12px;\
+  \}\
+  .op-row.buy \{ border-left: 3px solid var(--green); \}\
+  .op-row.sell \{ border-left: 3px solid var(--red); \}\
+  .op-type \{ font-weight: 700; font-size: 11px; text-transform: uppercase; \}\
+  .op-type.buy \{ color: var(--green); \}\
+  .op-type.sell \{ color: var(--red); \}\
+  .op-price \{ color: var(--text2); margin-left: 8px; \}\
+  .op-pnl \{ font-weight: 600; \}\
+  .op-pnl.pos \{ color: var(--green); \}\
+  .op-pnl.neg \{ color: var(--red); \}\
+  .op-reason \{ color: var(--text3); font-size: 11px; margin-left: 6px; \}\
+  .empty-msg \{ font-size: 12px; color: var(--text3); padding: 8px; \}\
+\
+  /* Footer */\
+  .footer \{ text-align: center; font-size: 11px; color: var(--text3); margin-top: 8px; \}\
+  .footer a \{ color: var(--text3); text-decoration: none; \}\
+\
+  /* Scrollbar */\
+  ::-webkit-scrollbar \{ width: 4px; \}\
+  ::-webkit-scrollbar-track \{ background: transparent; \}\
+  ::-webkit-scrollbar-thumb \{ background: var(--border2); border-radius: 2px; \}\
+</style>\
+</head>\
+<body>\
+<div class="container">\
+\
+  <div class="header">\
+    <div class="title-block">\
+      <div class="gold-icon">\uc0\u55358 \u56647 </div>\
+      <div>\
+        <h1>Bot XAU/USD</h1>\
+        <div class="sub">Simulador de Trading \'b7 Oro / D\'f3lar</div>\
+      </div>\
+    </div>\
+    <div class="status-badge" id="statusBadge" onclick="toggleBot()">\
+      <span class="dot"></span>\
+      <span id="statusText">Detenido</span>\
+    </div>\
+  </div>\
+\
+  <div class="metrics">\
+    <div class="metric">\
+      <div class="metric-label">Precio actual</div>\
+      <div class="metric-value" id="mPrice">2,347.80</div>\
+      <div class="metric-sub">XAU/USD</div>\
+    </div>\
+    <div class="metric">\
+      <div class="metric-label">P&amp;L hoy</div>\
+      <div class="metric-value pos" id="mPnl">+$0.00</div>\
+      <div class="metric-sub" id="mTrades">0 operaciones</div>\
+    </div>\
+    <div class="metric">\
+      <div class="metric-label">Win rate</div>\
+      <div class="metric-value" id="mWin">\'97</div>\
+      <div class="metric-sub" id="mWinSub">sin datos</div>\
+    </div>\
+    <div class="metric">\
+      <div class="metric-label">Posici\'f3n</div>\
+      <div class="metric-value" id="mPos" style="font-size:18px">Neutral</div>\
+      <div class="metric-sub" id="mPosSub">sin exposici\'f3n</div>\
+    </div>\
+  </div>\
+\
+  <div class="panel">\
+    <div class="panel-title"><i class="ti ti-activity"></i> Precio en tiempo real</div>\
+    <div class="chart-wrap">\
+      <canvas id="priceChart" role="img" aria-label="Gr\'e1fico de precio XAU/USD"></canvas>\
+    </div>\
+  </div>\
+\
+  <div class="two-col">\
+\
+    <div class="panel">\
+      <div class="panel-title"><i class="ti ti-settings"></i> Configuraci\'f3n</div>\
+      <div class="config-row">\
+        <label>Estrategia</label>\
+        <select id="strategy">\
+          <option value="scalp">Scalping (1-5 min)</option>\
+          <option value="breakout">Breakout</option>\
+          <option value="mean">Mean Reversion</option>\
+          <option value="rsi">RSI Extremes</option>\
+        </select>\
+      </div>\
+      <div class="config-row">\
+        <label>Stop Loss (pips) <span id="slVal">15</span></label>\
+        <input type="range" min="5" max="50" value="15" step="1" id="slRange" oninput="document.getElementById('slVal').textContent=this.value">\
+      </div>\
+      <div class="config-row">\
+        <label>Take Profit (pips) <span id="tpVal">30</span></label>\
+        <input type="range" min="10" max="100" value="30" step="1" id="tpRange" oninput="document.getElementById('tpVal').textContent=this.value">\
+      </div>\
+      <div class="config-row">\
+        <label>Tama\'f1o de lote <span id="lotVal">0.10</span></label>\
+        <input type="range" min="1" max="10" value="1" step="1" id="lotRange" oninput="document.getElementById('lotVal').textContent=(this.value*0.1).toFixed(2)">\
+      </div>\
+    </div>\
+\
+    <div class="panel">\
+      <div class="panel-title"><i class="ti ti-robot"></i> Se\'f1al IA</div>\
+      <div class="signal-box" id="signalBox">\
+        <div>\
+          <div class="signal-title" id="signalTitle">Esperando an\'e1lisis</div>\
+          <div class="signal-sub" id="signalSub">Presiona analizar o inicia el bot</div>\
+        </div>\
+        <div class="signal-arrow" id="signalArrow">\'97</div>\
+      </div>\
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">An\'e1lisis IA:</div>\
+      <div class="ai-log loading" id="aiLog">Esperando datos del mercado...</div>\
+      <div class="btn-row">\
+        <button class="btn-main" id="mainBtn" onclick="toggleBot()">\
+          <i class="ti ti-player-play" id="btnIcon"></i>\
+          <span id="btnText">Iniciar bot</span>\
+        </button>\
+        <button class="btn-ai" onclick="analyzeMarket()">\
+          <i class="ti ti-brain"></i> IA\
+        </button>\
+      </div>\
+    </div>\
+\
+  </div>\
+\
+  <div class="panel">\
+    <div class="panel-title"><i class="ti ti-list"></i> Operaciones recientes</div>\
+    <div class="ops-list" id="opsList">\
+      <div class="empty-msg">Sin operaciones todav\'eda</div>\
+    </div>\
+  </div>\
+\
+  <div class="footer">Simulador educativo \'b7 No constituye asesor\'eda financiera \'b7 <a href="https://github.com/exitopro507-design/simulador" target="_blank">GitHub</a></div>\
+\
+</div>\
+\
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>\
+<script>\
+let running = false, botInterval = null;\
+let currentPrice = 2347.80;\
+let pnl = 0, trades = 0, wins = 0;\
+let position = null;\
+let priceHistory = [];\
+let operations = [];\
+const MAX = 60;\
+\
+for (let i = 0; i < MAX; i++) \{\
+  currentPrice += (Math.random() - 0.5) * 0.8;\
+  priceHistory.push(parseFloat(currentPrice.toFixed(2)));\
+\}\
+\
+const ctx = document.getElementById('priceChart').getContext('2d');\
+const chart = new Chart(ctx, \{\
+  type: 'line',\
+  data: \{\
+    labels: priceHistory.map(() => ''),\
+    datasets: [\{\
+      data: [...priceHistory],\
+      borderColor: '#1D9E75',\
+      borderWidth: 1.5,\
+      pointRadius: 0,\
+      tension: 0.3,\
+      fill: false\
+    \}]\
+  \},\
+  options: \{\
+    responsive: true, maintainAspectRatio: false, animation: false,\
+    plugins: \{ legend: \{ display: false \} \},\
+    scales: \{\
+      x: \{ display: false \},\
+      y: \{\
+        grid: \{ color: 'rgba(255,255,255,0.05)' \},\
+        ticks: \{ font: \{ size: 11 \}, color: '#555', callback: v => '$' + v.toFixed(0) \}\
+      \}\
+    \}\
+  \}\
+\});\
+\
+setInterval(() => \{\
+  const vol = running ? 0.6 : 0.3;\
+  currentPrice += (Math.random() - 0.49) * vol;\
+  currentPrice = parseFloat(currentPrice.toFixed(2));\
+  priceHistory.push(currentPrice);\
+  if (priceHistory.length > MAX) priceHistory.shift();\
+  chart.data.datasets[0].data = [...priceHistory];\
+  chart.update('none');\
+  document.getElementById('mPrice').textContent = currentPrice.toLocaleString('en-US', \{ minimumFractionDigits: 2, maximumFractionDigits: 2 \});\
+\}, 800);\
+\
+function toggleBot() \{\
+  running = !running;\
+  const badge = document.getElementById('statusBadge');\
+  if (running) \{\
+    badge.className = 'status-badge running';\
+    document.getElementById('statusText').textContent = 'Ejecutando';\
+    document.getElementById('btnIcon').className = 'ti ti-player-stop';\
+    document.getElementById('btnText').textContent = 'Detener bot';\
+    botInterval = setInterval(runCycle, 3000);\
+  \} else \{\
+    badge.className = 'status-badge';\
+    document.getElementById('statusText').textContent = 'Detenido';\
+    document.getElementById('btnIcon').className = 'ti ti-player-play';\
+    document.getElementById('btnText').textContent = 'Iniciar bot';\
+    clearInterval(botInterval);\
+    if (position) closePosition('manual');\
+  \}\
+\}\
+\
+function getSignal() \{\
+  const prices = priceHistory.slice(-20);\
+  const avg = prices.reduce((a, b) => a + b, 0) / prices.length;\
+  const last = prices[prices.length - 1];\
+  const prev = prices[prices.length - 5];\
+  const strat = document.getElementById('strategy').value;\
+  if (strat === 'scalp') \{\
+    if (last > avg * 1.0008) return 'SELL';\
+    if (last < avg * 0.9992) return 'BUY';\
+  \} else if (strat === 'breakout') \{\
+    const high = Math.max(...prices), low = Math.min(...prices);\
+    if (last >= high * 0.9995 && last > prev) return 'BUY';\
+    if (last <= low * 1.0005 && last < prev) return 'SELL';\
+  \} else if (strat === 'mean') \{\
+    const dev = last - avg;\
+    if (dev < -0.5) return 'BUY';\
+    if (dev > 0.5) return 'SELL';\
+  \} else if (strat === 'rsi') \{\
+    let gains = 0, losses = 0;\
+    for (let i = 1; i < prices.length; i++) \{\
+      const d = prices[i] - prices[i - 1];\
+      if (d > 0) gains += d; else losses -= d;\
+    \}\
+    const rsi = 100 - (100 / (1 + gains / Math.max(losses, 0.001)));\
+    if (rsi < 30) return 'BUY';\
+    if (rsi > 70) return 'SELL';\
+  \}\
+  return 'NEUTRAL';\
+\}\
+\
+function updateSignalUI(signal) \{\
+  const box = document.getElementById('signalBox');\
+  const title = document.getElementById('signalTitle');\
+  const sub = document.getElementById('signalSub');\
+  const arrow = document.getElementById('signalArrow');\
+  box.className = 'signal-box';\
+  if (signal === 'BUY') \{\
+    box.classList.add('buy');\
+    title.textContent = 'Se\'f1al de compra';\
+    sub.textContent = 'Condiciones alcistas detectadas';\
+    arrow.textContent = '\uc0\u8593 ';\
+  \} else if (signal === 'SELL') \{\
+    box.classList.add('sell');\
+    title.textContent = 'Se\'f1al de venta';\
+    sub.textContent = 'Condiciones bajistas detectadas';\
+    arrow.textContent = '\uc0\u8595 ';\
+  \} else \{\
+    title.textContent = 'Mercado neutral';\
+    sub.textContent = 'Sin se\'f1al clara por ahora';\
+    arrow.textContent = '\'97';\
+  \}\
+\}\
+\
+function openPosition(type) \{\
+  const sl = parseInt(document.getElementById('slRange').value);\
+  const tp = parseInt(document.getElementById('tpRange').value);\
+  const lot = parseFloat(document.getElementById('lotVal').textContent);\
+  position = \{ type, entry: currentPrice, sl, tp, lot \};\
+  document.getElementById('mPos').textContent = type === 'BUY' ? '\uc0\u8593  Largo' : '\u8595  Corto';\
+  document.getElementById('mPosSub').textContent = '@ $' + currentPrice.toFixed(2);\
+\}\
+\
+function closePosition(reason) \{\
+  if (!position) return;\
+  const diff = currentPrice - position.entry;\
+  const pip = position.type === 'BUY' ? diff : -diff;\
+  const dollars = pip * position.lot * 100;\
+  pnl += dollars; trades++;\
+  if (dollars > 0) wins++;\
+  operations.unshift(\{ type: position.type, entry: position.entry, exit: currentPrice, pnl: dollars, reason \});\
+  if (operations.length > 10) operations.pop();\
+  renderOps();\
+  position = null;\
+  document.getElementById('mPos').textContent = 'Neutral';\
+  document.getElementById('mPosSub').textContent = 'sin exposici\'f3n';\
+  updateMetrics();\
+\}\
+\
+function updateMetrics() \{\
+  const el = document.getElementById('mPnl');\
+  el.textContent = (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2);\
+  el.className = 'metric-value ' + (pnl >= 0 ? 'pos' : 'neg');\
+  document.getElementById('mTrades').textContent = trades + ' operaci\'f3n' + (trades !== 1 ? 'es' : '');\
+  const wr = trades > 0 ? Math.round((wins / trades) * 100) : null;\
+  document.getElementById('mWin').textContent = wr !== null ? wr + '%' : '\'97';\
+  document.getElementById('mWinSub').textContent = wr !== null ? wins + ' de ' + trades + ' ganadoras' : 'sin datos';\
+\}\
+\
+function runCycle() \{\
+  const signal = getSignal();\
+  updateSignalUI(signal);\
+  if (position) \{\
+    const diff = currentPrice - position.entry;\
+    const pip = position.type === 'BUY' ? diff : -diff;\
+    if (pip >= position.tp / 100 || pip <= -(position.sl / 100)) closePosition(pip >= 0 ? 'TP' : 'SL');\
+  \} else \{\
+    if (signal !== 'NEUTRAL') openPosition(signal);\
+  \}\
+\}\
+\
+function renderOps() \{\
+  const list = document.getElementById('opsList');\
+  if (!operations.length) \{ list.innerHTML = '<div class="empty-msg">Sin operaciones todav\'eda</div>'; return; \}\
+  list.innerHTML = operations.map(op => `\
+    <div class="op-row $\{op.type.toLowerCase()\}">\
+      <div>\
+        <span class="op-type $\{op.type.toLowerCase()\}">$\{op.type\}</span>\
+        <span class="op-price">$$\{op.entry.toFixed(2)\} \uc0\u8594  $$\{op.exit.toFixed(2)\}</span>\
+      </div>\
+      <div>\
+        <span class="op-pnl $\{op.pnl >= 0 ? 'pos' : 'neg'\}">$\{op.pnl >= 0 ? '+' : ''\}$$\{op.pnl.toFixed(2)\}</span>\
+        <span class="op-reason">$\{op.reason\}</span>\
+      </div>\
+    </div>`).join('');\
+\}\
+\
+async function analyzeMarket() \{\
+  const log = document.getElementById('aiLog');\
+  log.className = 'ai-log loading';\
+  log.textContent = 'Consultando IA...';\
+  const stratNames = \{ scalp: 'Scalping', breakout: 'Breakout', mean: 'Mean Reversion', rsi: 'RSI Extremes' \};\
+  const strat = document.getElementById('strategy').value;\
+  const prices = priceHistory.slice(-10).map(p => p.toFixed(2)).join(', ');\
+  const signal = getSignal();\
+  const prompt = `Eres un analista de trading cuantitativo especializado en XAU/USD.\\nDatos:\\n- Precio: $$\{currentPrice.toFixed(2)\}\\n- Estrategia: $\{stratNames[strat]\}\\n- \'daltimos 10 precios: $\{prices\}\\n- Se\'f1al: $\{signal\}\\n- P&L sesi\'f3n: $$\{pnl.toFixed(2)\}\\n- Operaciones: $\{trades\}\\n\\nDa un an\'e1lisis breve (3-4 l\'edneas) con: condici\'f3n del mercado, validaci\'f3n de se\'f1al y recomendaci\'f3n de riesgo. S\'e9 directo y profesional.`;\
+  try \{\
+    const res = await fetch('https://api.anthropic.com/v1/messages', \{\
+      method: 'POST',\
+      headers: \{ 'Content-Type': 'application/json' \},\
+      body: JSON.stringify(\{ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [\{ role: 'user', content: prompt \}] \})\
+    \});\
+    const data = await res.json();\
+    const text = data.content?.find(b => b.type === 'text')?.text || 'Sin respuesta';\
+    log.className = 'ai-log';\
+    log.textContent = text;\
+  \} catch (e) \{\
+    log.className = 'ai-log';\
+    log.textContent = 'Error al consultar la IA.';\
+  \}\
+\}\
+</script>\
+</body>\
+</html>}
